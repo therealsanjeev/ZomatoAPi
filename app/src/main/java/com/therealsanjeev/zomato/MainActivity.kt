@@ -6,13 +6,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+import com.therealsanjeev.zomato.Adapter.ResponseAdapter
+import com.therealsanjeev.zomato.model.Response
 import com.therealsanjeev.zomato.repo.Repository
 import com.therealsanjeev.zomato.views.AppViewModel
 import com.therealsanjeev.zomato.views.AppViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerAdapter: ResponseAdapter
+    private val responseList = ArrayList<Response>()
 
     private lateinit var viewModel: AppViewModel
     private lateinit var searchBtn: CircularProgressButton
@@ -21,6 +29,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        recyclerView =id_recyclerView
+        recyclerAdapter = ResponseAdapter(responseList)
+        val layoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = recyclerAdapter
 
         searchBtn=btn_id
         searchBtn.setOnClickListener {
@@ -45,6 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         searchBtn.startAnimation()
         Log.d("EDITTEXT","$searchText")
+
         val repository = Repository()
         val viewModelFactory = AppViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(AppViewModel::class.java)
@@ -69,6 +83,8 @@ class MainActivity : AppCompatActivity() {
 //                    Log.d("RESPONSE", "==============================================")
                     Log.d("RESPONSE", "Average Price For Two: ${element.restaurant.average_cost_for_two}")
                     Log.d("RESPONSE", "Cuisines: ${element.restaurant.cuisines}")
+                    val item = Response(element.restaurant.name, element.restaurant.average_cost_for_two.toString(), element.restaurant.cuisines)
+                    responseList.add(item)
                 }
             }else{
                 searchBtn.revertAnimation()
